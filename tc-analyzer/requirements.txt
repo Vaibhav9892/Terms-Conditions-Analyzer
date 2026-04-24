@@ -1,0 +1,32 @@
+# ── Core LLM & RAG ──────────────────────────────────────────────────────────
+langchain>=0.2.0
+langchain-core>=0.2.0
+langchain-openai>=0.1.7
+langchain-community>=0.2.0
+langchain-text-splitters>=0.2.0
+openai>=1.23.0
+faiss-cpu>=1.7.4
+tiktoken>=0.7.0
+
+# ── FREE Provider: Groq (OpenAI-compatible, no extra package needed) ─────────
+# Uses langchain-openai with custom base_url — already installed above
+
+# ── FREE Provider: Google Gemini ─────────────────────────────────────────────
+langchain-google-genai>=1.0.0
+
+# ── FREE Embeddings: HuggingFace (local, no API key) ─────────────────────────
+langchain-huggingface>=0.0.3
+sentence-transformers>=2.7.0
+
+# ── FREE Provider: Ollama (local models) ─────────────────────────────────────
+langchain-ollama>=0.1.0
+
+# ── Document processing ───────────────────────────────────────────────────────
+pdfplumber>=0.10.3
+pypdf>=4.0.0
+
+# ── Web UI ────────────────────────────────────────────────────────────────────
+streamlit>=1.33.0
+
+# ── Utilities ─────────────────────────────────────────────────────────────────
+python-dotenv>=1.0.1

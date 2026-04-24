@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>T&C Analyzer — Architecture</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d1117; --surface: #161b22; --surface2: #1e2430;
+    --border: #30363d; --text: #e6edf3; --muted: #8b949e; --faint: #484f58;
+    --blue: #58a6ff; --green: #3fb950; --orange: #d29922;
+    --red: #f85149; --purple: #bc8cff; --teal: #39d353;
+    --accent: #6366f1;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif;
+         min-height: 100vh; padding: 48px 24px; }
+  h1 { font-size: 28px; font-weight: 700; text-align: center; margin-bottom: 8px; color: var(--text); }
+  .subtitle { text-align: center; color: var(--muted); font-size: 14px; margin-bottom: 48px; }
+
+  /* Pipeline container */
+  .pipeline { max-width: 900px; margin: 0 auto; }
+  .stage { display: flex; align-items: stretch; margin-bottom: 8px; gap: 12px; }
+  .stage-label {
+    width: 150px; flex-shrink: 0; display: flex; align-items: center;
+    justify-content: flex-end; font-size: 11px; font-weight: 600;
+    color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em;
+    text-align: right; padding-right: 12px;
+  }
+  .arrow-col {
+    width: 24px; flex-shrink: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+  }
+  .arrow-line { width: 2px; flex: 1; background: var(--faint); }
+  .arrow-head { color: var(--faint); font-size: 16px; line-height: 1; }
+
+  .node {
+    flex: 1; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 18px; position: relative;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .node:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+  .node-title { font-weight: 600; font-size: 15px; margin-bottom: 4px; }
+  .node-sub   { font-size: 12px; color: var(--muted); line-height: 1.5; }
+  .node-badge {
+    position: absolute; top: 12px; right: 12px;
+    font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 999px;
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .badge-input   { background: #1e3a5f; color: var(--blue); }
+  .badge-process { background: #1a2d1a; color: var(--green); }
+  .badge-agent   { background: #2d1a3a; color: var(--purple); }
+  .badge-output  { background: #1a1a2e; color: var(--accent); }
+  .badge-eval    { background: #2a1a00; color: var(--orange); }
+
+  .accent-bar { position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+                width: 3px; height: 60%; border-radius: 999px; }
+
+  /* Agent cards */
+  .agents-row { display: flex; gap: 12px; margin-bottom: 8px; }
+  .agent-card {
+    flex: 1; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px; position: relative;
+  }
+  .agent-num {
+    font-size: 11px; font-weight: 700; color: var(--purple);
+    text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px;
+  }
+  .agent-name { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+  .agent-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+  /* Score grid */
+  .score-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 8px; }
+  .score-item {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px; text-align: center;
+  }
+  .score-val { font-size: 22px; font-weight: 700; color: var(--accent); }
+  .score-lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+
+  /* Section title */
+  .sec-title { font-size: 11px; font-weight: 600; color: var(--faint);
+               text-transform: uppercase; letter-spacing: 0.1em; margin: 24px 0 12px; }
+
+  /* Legend */
+  .legend { display: flex; gap: 20px; justify-content: center; margin-top: 40px; flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<h1>⚖️ T&C Analyzer — System Architecture</h1>
+<p class="subtitle">RAG + Multi-Agent Pipeline for Terms &amp; Conditions Risk Assessment</p>
+
+<div class="pipeline">
+
+  <!-- INPUT -->
+  <div class="sec-title">Input Layer</div>
+  <div class="stage">
+    <div class="stage-label">User Input</div>
+    <div class="node">
+      <span class="accent-bar" style="background:#58a6ff"></span>
+      <span class="node-badge badge-input">Input</span>
+      <div class="node-title">📄 Document Loader</div>
+      <div class="node-sub">Accepts PDF (via pdfplumber) or raw text paste. Extracts clean UTF-8 text with page markers.</div>
+    </div>
+  </div>
+
+  <!-- CHUNKING -->
+  <div class="stage">
+    <div class="stage-label">Preprocessing</div>
+    <div class="node">
+      <span class="accent-bar" style="background:#3fb950"></span>
+      <span class="node-badge badge-process">Process</span>
+      <div class="node-title">✂️ Semantic Chunker</div>
+      <div class="node-sub">RecursiveCharacterTextSplitter · chunk_size=1000 · overlap=200 · separators: paragraph → sentence → word</div>
+    </div>
+  </div>
+
+  <!-- EMBEDDINGS + FAISS -->
+  <div class="stage">
+    <div class="stage-label">Indexing</div>
+    <div class="node">
+      <span class="accent-bar" style="background:#d29922"></span>
+      <span class="node-badge badge-process">Vector DB</span>
+      <div class="node-title">🧠 Embeddings → FAISS Index</div>
+      <div class="node-sub">OpenAI text-embedding-3-small · 1536-dim vectors · FAISS flat L2 index · Top-K similarity search per agent query</div>
+    </div>
+  </div>
+
+  <!-- AGENTS -->
+  <div class="sec-title">Agent Layer (Multi-Agent)</div>
+  <div class="agents-row">
+    <div class="agent-card">
+      <div class="agent-num">🤖 Agent 1</div>
+      <div class="agent-name">Clause Extractor</div>
+      <div class="agent-desc">RAG retrieval over 5 targeted queries. Identifies 8 clause types. Extracts verbatim excerpts. ReAct-style reasoning: Observe → Reason → Extract.</div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-num">⚠️ Agent 2</div>
+      <div class="agent-name">Risk Analyzer</div>
+      <div class="agent-desc">Receives extracted clauses + RAG context. Assigns low/medium/high risk level. Explains consumer impact in plain English.</div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-num">📝 Agent 3</div>
+      <div class="agent-name">Summarizer</div>
+      <div class="agent-desc">Synthesizes risk findings + document context. Produces TL;DR, rights, obligations, red flags, and overall verdict.</div>
+    </div>
+  </div>
+
+  <!-- SCORING -->
+  <div class="sec-title">Scoring Layer</div>
+  <div class="stage">
+    <div class="stage-label">Risk Score</div>
+    <div class="node">
+      <span class="accent-bar" style="background:#6366f1"></span>
+      <span class="node-badge badge-output">Output</span>
+      <div class="node-title">📊 Weighted Risk Scorer</div>
+      <div class="node-sub">Score = Σ(wᵢ · rᵢ) / Σwᵢ  where rᵢ ∈ {2, 5, 9} for low/medium/high. Data/Privacy weight=2.0 · Arbitration=1.8 · Liability/Auto-renewal=1.5</div>
+    </div>
+  </div>
+
+  <!-- OUTPUT -->
+  <div class="sec-title">Output Layer</div>
+  <div class="score-grid">
+    <div class="score-item"><div class="score-val" style="color:#f85149">1–10</div><div class="score-lbl">Risk Score</div></div>
+    <div class="score-item"><div class="score-val" style="color:#bc8cff">8</div><div class="score-lbl">Clause Types</div></div>
+    <div class="score-item"><div class="score-val" style="color:#3fb950">TL;DR</div><div class="score-lbl">Summary</div></div>
+    <div class="score-item"><div class="score-val" style="color:#d29922">JSON</div><div class="score-lbl">Export</div></div>
+  </div>
+
+  <!-- EVAL -->
+  <div class="sec-title">Evaluation Layer</div>
+  <div class="stage">
+    <div class="stage-label">Evaluation</div>
+    <div class="node">
+      <span class="accent-bar" style="background:#d29922"></span>
+      <span class="node-badge badge-eval">Eval</span>
+      <div class="node-title">🔬 Baseline Comparison</div>
+      <div class="node-sub">RAG summary vs. naive truncation baseline · Key-term coverage · Avg sentence length · Compression ratio · (ROUGE-L with reference summaries)</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#58a6ff"></div>Input</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#3fb950"></div>Processing</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#bc8cff"></div>Agent</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#6366f1"></div>Output</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#d29922"></div>Evaluation</div>
+</div>
+
+</body>
+</html>

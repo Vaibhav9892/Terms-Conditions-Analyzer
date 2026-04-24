@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "T&C Analyzer",
+  "version": "1.0.0",
+  "description": "Instantly analyze Terms & Conditions — risk score, TL;DR, and red flags powered by AI.",
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "T&C Analyzer",
+    "default_icon": {
+      "16":  "icons/icon16.png",
+      "48":  "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "permissions": ["storage", "activeTab", "scripting"],
+  "host_permissions": [
+    "https://api.groq.com/*",
+    "https://generativelanguage.googleapis.com/*",
+    "https://api.openai.com/*"
+  ],
+  "icons": {
+    "16":  "icons/icon16.png",
+    "48":  "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

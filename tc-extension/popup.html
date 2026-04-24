@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>T&C Analyzer</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <span class="header-logo">⚖️</span>
+      <div>
+        <div class="header-title">T&amp;C Analyzer</div>
+        <div class="header-sub">AI Risk Assessment</div>
+      </div>
+    </div>
+    <button class="btn-icon" id="settingsToggle" title="Settings" onclick="
+      document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+      document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+      document.querySelector('[data-view=settingsView]').classList.add('active');
+      document.getElementById('settingsView').classList.add('active');
+    ">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" data-view="analyzeView">🔍 Analyze</button>
+    <button class="tab" data-view="settingsView">⚙️ Settings</button>
+  </div>
+
+  <!-- Analyze View -->
+  <div id="analyzeView" class="view active">
+    <div class="label">Paste Terms &amp; Conditions</div>
+    <textarea
+      id="tcText"
+      placeholder="Paste any Terms & Conditions, Privacy Policy, or EULA here…"
+    ></textarea>
+    <div class="word-count" id="wordCount">0 words</div>
+    <div class="warn-box" id="charWarn" style="display:none"></div>
+
+    <div class="btn-row">
+      <button class="btn btn-secondary" id="grabBtn" title="Extract text from the current page">
+        📋 Grab page
+      </button>
+      <button class="btn btn-primary" id="analyzeBtn">
+        🔍 Analyze
+      </button>
+    </div>
+
+    <!-- Results rendered here -->
+    <div id="results"></div>
+  </div>
+
+  <!-- Settings View -->
+  <div id="settingsView" class="view">
+    <div class="setting-group">
+      <div class="setting-label">Provider</div>
+      <select id="providerSel">
+        <option value="groq">Groq (Free — Recommended)</option>
+        <option value="openai">OpenAI (Paid)</option>
+      </select>
+    </div>
+
+    <div class="setting-group">
+      <div class="setting-label">API Key</div>
+      <input type="password" id="apiKeyInput" placeholder="gsk_..." autocomplete="off"/>
+      <div class="info-box">
+        🆓 Get a <b>free</b> Groq key at
+        <a id="keyInfoLink" href="https://console.groq.com" target="_blank">console.groq.com</a>
+        — no credit card required.
+      </div>
+    </div>
+
+    <div class="setting-group">
+      <div class="setting-label">Model</div>
+      <select id="modelSel"></select>
+    </div>
+
+    <button class="btn btn-primary" id="saveSettingsBtn" style="width:100%;justify-content:center">
+      💾 Save Settings
+    </button>
+    <div class="save-msg" id="saveMsg">✅ Settings saved!</div>
+
+    <div class="info-box" style="margin-top:12px">
+      <b>Privacy:</b> Your API key is stored locally in your browser only.
+      Text you analyze is sent directly to the LLM provider — never to any other server.
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
