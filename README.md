@@ -27,7 +27,7 @@ Streamlit UI       →  results + JSON/MD export
 ### 1. Clone & install
 
 ```bash
-git clone https://github.com/Vaibhav9892/Terms-Conditions-Analyzer
+git clone https://github.com/Vaibhav9892/Terms-and-Conditions-Analyzer
 cd tc-analyzer
 
 python -m venv venv
