@@ -1,6 +1,5 @@
 """
 app.py  —  T&C Analyzer  |  RAG + Multi-Agent Pipeline
-Run: streamlit run app.py
 """
 import json
 import time
@@ -15,7 +14,7 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded",
 )
-#CSS
+#CSS markdown because it looks aesthetic using bootstrap templates
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
@@ -166,7 +165,7 @@ st.markdown("Upload any T&C → plain-English summary, extracted clauses, and a 
 tab_upload, tab_results, tab_eval, tab_about = st.tabs(
     ["📄 Upload & Analyze", "📊 Results", "🔬 Evaluation", "📘 About"])
 
-# ═══ TAB 1 — UPLOAD ══════════════════════════════════════════════════════════
+# TAB 1 — UPLOAD 
 with tab_upload:
     col_left, col_right = st.columns([1.1, 1], gap="large")
 
@@ -278,7 +277,7 @@ We may terminate your account at any time, for any reason, without notice.
             scorer     = RiskScorer()
             pb.progress(42)
 
-            # Step 4: Agent 1 — Extract
+            # Step 4: Agent 1: Extract
             status.markdown("**⏳ Step 4/5 — Agent 1: Extracting clauses via RAG…**")
             extract_context = "\n\n---\n\n".join(
                 vs.get_context(q, k=top_k) for q in [
@@ -328,7 +327,7 @@ with tab_results:
     r = st.session_state["results"]
     score, summary, clauses = r["score"], r["summary"], r["clauses"]
 
-    # Show debug warning if JSON parsing failed
+    # Show debug warning if JSON parsing failed | I made it on a mac so it can sometimes fail on windows. sorry
     if r.get("parse_error"):
         with st.expander("⚠️ JSON Parse Warning — click to see raw LLM output", expanded=True):
             st.warning("The LLM returned a response that could not be fully parsed as JSON. The TL;DR below shows the raw output. This usually means the model added extra prose around the JSON — try switching to a different model (e.g. llama-3.3-70b-versatile or gpt-4o-mini).")
